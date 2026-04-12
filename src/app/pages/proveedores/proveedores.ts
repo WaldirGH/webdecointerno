@@ -84,7 +84,7 @@ export class Proveedores implements OnInit {
     this.errorRuc = '';
     this.cdr.detectChanges();
 
-    fetch(`http://localhost:8080/api/public/sunat/ruc/${this.form.ruc}`)
+    fetch(`https://decobackend.onrender.com/api/public/sunat/ruc/${this.form.ruc}`)
       .then(r => r.json())
       .then(data => {
         this.form.nombre = data.razon_social;
