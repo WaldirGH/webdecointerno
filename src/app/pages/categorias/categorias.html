@@ -1,0 +1,106 @@
+<div class="page">
+    <div class="topbar">
+        <div class="topbar-content">
+            <p class="eyebrow">Gestión interna</p>
+            <h2>🏷️ Categorías</h2>
+            <p class="subtitle">Administra todas las categorías registradas en la base de datos.</p>
+        </div>
+
+        <button class="btn-primary" (click)="abrirModal()">
+            <span>＋</span> Nueva categoría
+        </button>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div>
+                <span class="stat-label">Total categorías</span>
+                <strong class="stat-value">{{ categorias.length }}</strong>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">👁️</div>
+            <div>
+                <span class="stat-label">Resultados visibles</span>
+                <strong class="stat-value">{{ categoriasFiltradas.length }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input
+                type="text"
+                [(ngModel)]="busqueda"
+                (input)="filtrarCategorias()"
+                placeholder="Buscar categoría por nombre..." />
+        </div>
+    </div>
+
+    @if (categoriasFiltradas.length > 0) {
+    <div class="cards-grid">
+        @for (c of categoriasFiltradas; track c.id) {
+        <div class="categoria-card">
+            <div class="card-top">
+                <div class="icon-box">🏷️</div>
+                <span class="category-id">CAT-{{ c.id | number:'3.0' }}</span>
+            </div>
+
+            <div class="card-body">
+                <h3>{{ c.nombre }}</h3>
+                <p>Categoría registrada en el sistema interno.</p>
+            </div>
+
+            <div class="card-actions">
+                <button class="btn-secondary" (click)="abrirModal(c)">✏ Editar</button>
+                <button class="btn-danger" (click)="eliminar(c.id)">🗑 Eliminar</button>
+            </div>
+        </div>
+        }
+    </div>
+    } @else {
+    <div class="empty-state">
+        <div class="empty-icon">📂</div>
+        <h3>No se encontraron categorías</h3>
+        <p>Prueba con otro nombre o registra una nueva categoría.</p>
+    </div>
+    }
+</div>
+
+@if (mostrarModal) {
+<div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <h3>{{ editando ? 'Editar categoría' : 'Nueva categoría' }}</h3>
+                <p>
+                    {{ editando
+                    ? 'Actualiza la información de la categoría.'
+                    : 'Registra una nueva categoría en el sistema.' }}
+                </p>
+            </div>
+            <button class="btn-close" (click)="cerrarModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nombre de la categoría</label>
+                <input
+                    type="text"
+                    [(ngModel)]="nombre"
+                    placeholder="Ej: Globos, Peluches, Bebidas..." />
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-light" (click)="cerrarModal()">Cancelar</button>
+                <button class="btn-primary" (click)="guardar()" [disabled]="!nombre.trim()">
+                    {{ editando ? 'Actualizar' : 'Guardar' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+}

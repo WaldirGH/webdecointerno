@@ -1,0 +1,60 @@
+<div class="layout" [class.menu-cerrado]="!menuAbierto">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <span class="logo">🎈 <strong>Decoballoons</strong></span>
+            <button class="toggle-btn" (click)="toggleMenu()">☰</button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a routerLink="/dashboard/pedidos" routerLinkActive="active">
+                <span class="icon">📦</span>
+                <span class="label">Pedidos</span>
+            </a>
+
+            <a routerLink="/dashboard/productos" routerLinkActive="active">
+                <span class="icon">🛍️</span>
+                <span class="label">Productos</span>
+            </a>
+
+            <a routerLink="/dashboard/inventario" routerLinkActive="active">
+                <span class="icon">📊</span>
+                <span class="label">Inventario</span>
+            </a>
+
+            <a routerLink="/dashboard/categorias" routerLinkActive="active">
+                <span class="icon">🏷️</span>
+                <span class="label">Categorías</span>
+            </a>
+
+            <a routerLink="/dashboard/proveedores" routerLinkActive="active">
+                <span class="icon">🚚</span>
+                <span class="label">Proveedores</span>
+            </a>
+
+            @if (authService.isAdmin()) {
+            <a routerLink="/dashboard/usuarios" routerLinkActive="active">
+                <span class="icon">👥</span>
+                <span class="label">Usuarios</span>
+            </a>
+            }
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <span class="icon">👤</span>
+                <div class="label">
+                    <strong>{{ authService.getNombre() }}</strong>
+                    <small>{{ authService.getRol() }}</small>
+                </div>
+            </div>
+
+            <button class="logout-btn" (click)="logout()">
+                🔒 Cerrar sesión
+            </button>
+        </div>
+    </aside>
+
+    <main class="content">
+        <router-outlet></router-outlet>
+    </main>
+</div>

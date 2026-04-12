@@ -1,0 +1,169 @@
+<div class="page">
+    <div class="page-header">
+        <div>
+            <p class="page-tag">Gestión interna</p>
+            <h2>📦 Pedidos</h2>
+            <p class="page-subtitle">Consulta, filtra y actualiza el estado de los pedidos registrados.</p>
+        </div>
+
+        <div class="filtros">
+            <select [(ngModel)]="filtroEstado" (change)="filtrar()">
+                <option value="">Todos los estados</option>
+                @for (e of estados; track e) {
+                <option [value]="e">{{ e }}</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    @if (cargando) {
+    <div class="loading-card">
+        <p class="cargando">Cargando pedidos...</p>
+    </div>
+    }
+
+    <div class="tabla-card">
+        <div class="tabla-header">
+            <div>
+                <h4>Listado de pedidos</h4>
+                <p>Visualiza la información principal y gestiona el estado de cada pedido.</p>
+            </div>
+        </div>
+
+        <div class="tabla-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Cliente</th>
+                        <th>Teléfono</th>
+                        <th>Total</th>
+                        <th>Entrega</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (pedido of pedidos; track pedido.id) {
+                    <tr>
+                        <td>PED-{{ pedido.id | number:'3.0' }}</td>
+
+                        <td>
+                            <div class="cliente-cell">
+                                <span class="cliente-icon">🧑</span>
+                                <span>{{ pedido.nombreCliente }}</span>
+                            </div>
+                        </td>
+
+                        <td>{{ pedido.telefono }}</td>
+
+                        <td class="total-cell">
+                            S/ {{ pedido.total.toFixed(2) }}
+                        </td>
+
+                        <td>{{ pedido.tipoEntrega }}</td>
+
+                        <td>
+                            <span class="badge" [ngClass]="badgeEstado(pedido.estado)">
+                                {{ pedido.estado }}
+                            </span>
+                        </td>
+
+                        <td>{{ pedido.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</td>
+
+                        <td>
+                            <div class="acciones-cell">
+
+                                <!-- BOTÓN VER -->
+                                <button class="btn-ver" (click)="verDetalle(pedido)">
+                                    Ver
+                                </button>
+
+                                <!-- ✅ SELECT CORREGIDO -->
+                                <select class="estado-select" [ngModel]="pedido.estado"
+                                    (ngModelChange)="cambiarEstado(pedido, $event)">
+                                    @for (e of estados; track e) {
+                                    <option [ngValue]="e">
+                                        {{ e }}
+                                    </option>
+                                    }
+                                </select>
+
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (pedidoSeleccionado) {
+<div class="modal-overlay" (click)="cerrarDetalle()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <h3>Pedido #{{ pedidoSeleccionado.id }}</h3>
+                <p>Detalle completo del pedido seleccionado.</p>
+            </div>
+            <button class="btn-close" (click)="cerrarDetalle()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="info-grid">
+                <div class="info-item"><strong>Cliente:</strong> {{ pedidoSeleccionado.nombreCliente }}</div>
+                <div class="info-item"><strong>Email:</strong> {{ pedidoSeleccionado.email }}</div>
+                <div class="info-item"><strong>Teléfono:</strong> {{ pedidoSeleccionado.telefono }}</div>
+                <div class="info-item"><strong>Entrega:</strong> {{ pedidoSeleccionado.tipoEntrega }}</div>
+
+                @if (pedidoSeleccionado.direccion) {
+                <div class="info-item full"><strong>Dirección:</strong> {{ pedidoSeleccionado.direccion }}</div>
+                }
+
+                @if (pedidoSeleccionado.quienRecoge) {
+                <div class="info-item"><strong>Recoge:</strong> {{ pedidoSeleccionado.quienRecoge }}</div>
+                }
+
+                @if (pedidoSeleccionado.observacion) {
+                <div class="info-item full"><strong>Observación:</strong> {{ pedidoSeleccionado.observacion }}</div>
+                }
+
+                <div class="info-item"><strong>Comprobante:</strong> {{ pedidoSeleccionado.tipoComprobante }}</div>
+
+                @if (pedidoSeleccionado.ruc) {
+                <div class="info-item"><strong>RUC:</strong> {{ pedidoSeleccionado.ruc }}</div>
+                <div class="info-item full"><strong>Razón social:</strong> {{ pedidoSeleccionado.razonSocial }}</div>
+                }
+
+                <div class="info-item">
+                    <strong>Estado:</strong>
+                    <span class="badge" [ngClass]="badgeEstado(pedidoSeleccionado.estado)">
+                        {{ pedidoSeleccionado.estado }}
+                    </span>
+                </div>
+
+                <div class="info-item total-info"><strong>Total:</strong> S/ {{ pedidoSeleccionado.total.toFixed(2) }}
+                </div>
+            </div>
+
+            <h4>Productos del pedido</h4>
+
+            <div class="detalles-lista">
+                @for (d of pedidoSeleccionado.detalles; track d.id) {
+                <div class="detalle-item">
+                    <img [src]="d.imgUrl" [alt]="d.nombreProducto" />
+                    <div class="detalle-content">
+                        <strong>{{ d.nombreProducto }}</strong>
+                        <p>Cantidad: {{ d.cantidad }}</p>
+                        <p>Precio unit: S/ {{ d.precioUnitario.toFixed(2) }}</p>
+                        <p>Subtotal: S/ {{ d.subtotal.toFixed(2) }}</p>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+}

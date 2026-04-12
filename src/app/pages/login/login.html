@@ -1,0 +1,29 @@
+<div class="login-container">
+    <div class="login-background-shape shape-1"></div>
+    <div class="login-background-shape shape-2"></div>
+
+    <div class="login-card">
+        <div class="login-header">
+            <div class="brand-badge">🎈</div>
+            <h1>Decoballoons</h1>
+            <p>Panel Administrativo</p>
+            <span class="login-caption">Accede con tu cuenta para gestionar pedidos, inventario y productos.</span>
+        </div>
+
+        <div class="form-group">
+            <label>Correo electrónico</label>
+            <input type="email" [(ngModel)]="request.email" placeholder="admin@deco.com" />
+        </div>
+
+        <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" [(ngModel)]="request.password" placeholder="••••••••" (keyup.enter)="login()" />
+        </div>
+
+        <p class="error" *ngIf="error">{{ error }}</p>
+
+        <button class="login-btn" (click)="login()" [disabled]="cargando">
+            {{ cargando ? 'Ingresando...' : 'Ingresar al sistema' }}
+        </button>
+    </div>
+</div>

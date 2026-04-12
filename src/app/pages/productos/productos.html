@@ -1,0 +1,161 @@
+<div class="page">
+    <div class="page-header">
+        <div>
+            <p class="page-kicker">Gestión interna</p>
+            <h2>🛍️ Productos</h2>
+            <span class="page-subtitle">Administra el catálogo de productos de Decoballoons</span>
+        </div>
+
+        <button class="btn-primary" (click)="abrirModal()">
+            <span>＋</span> Nuevo producto
+        </button>
+    </div>
+
+    @if (cargando) {
+        <p class="cargando">Cargando productos...</p>
+    }
+
+    <div class="toolbar">
+        <div class="filtro-box">
+            <label for="filtroCategoria">Filtrar por categoría</label>
+            <select
+                id="filtroCategoria"
+                [(ngModel)]="filtroCategoriaId"
+                (change)="onFiltroCategoriaChange()">
+                <option [ngValue]="0">Todas las categorías</option>
+                @for (c of categorias; track c.id) {
+                    <option [ngValue]="c.id">{{ c.nombre }}</option>
+                }
+            </select>
+        </div>
+
+        <div class="resultado-box">
+            <span>{{ productosFiltrados.length }} producto(s)</span>
+        </div>
+    </div>
+
+    @if (!cargando && productosFiltrados.length === 0) {
+        <div class="empty-state">
+            <div class="empty-icon">📦</div>
+            <p>No se encontraron productos</p>
+            <span>Prueba con otra categoría o registra un nuevo producto</span>
+        </div>
+    }
+
+    <div class="grid">
+        @for (p of productosFiltrados; track p.id) {
+        <div class="card">
+            <div class="card-img">
+                @if (p.imagenes && p.imagenes.length > 0) {
+                    <img [src]="p.imagenes[0].imgUrl" [alt]="p.nombre" />
+                } @else {
+                    <div class="sin-imagen">Sin imagen</div>
+                }
+            </div>
+
+            <div class="card-body">
+                <div class="card-top">
+                    <span class="categoria">{{ p.categoria.nombre }}</span>
+                    <span class="codigo">Cód: {{ p.codigoBarra }}</span>
+                </div>
+
+                <h4>{{ p.nombre }}</h4>
+                <p class="descripcion">{{ p.descripcion }}</p>
+                <p class="precio">S/ {{ p.precio.toFixed(2) }}</p>
+            </div>
+
+            <div class="card-actions">
+                <button class="btn-editar" (click)="abrirModal(p)">✏ Editar</button>
+                <button class="btn-eliminar" (click)="eliminar(p.id)">🗑 Eliminar</button>
+            </div>
+        </div>
+        }
+    </div>
+</div>
+
+@if (mostrarModal) {
+<div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <h3>{{ editando ? 'Editar producto' : 'Nuevo producto' }}</h3>
+                <p>
+                    {{ editando
+                        ? 'Actualiza la información del producto'
+                        : 'Completa los datos para registrar un nuevo producto' }}
+                </p>
+            </div>
+            <button class="btn-close" (click)="cerrarModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" [(ngModel)]="form.nombre" placeholder="Nombre del producto" />
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Precio</label>
+                    <input type="number" [(ngModel)]="form.precio" placeholder="0.00" />
+                </div>
+
+                <div class="form-group">
+                    <label>Código de barras</label>
+                    <input type="text" [(ngModel)]="form.codigoBarra" placeholder="Código de barras" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea [(ngModel)]="form.descripcion" rows="3" placeholder="Descripción del producto"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select [(ngModel)]="form.categoriaId">
+                        <option [ngValue]="0">Seleccionar</option>
+                        @for (c of categorias; track c.id) {
+                            <option [ngValue]="c.id">{{ c.nombre }}</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Proveedor</label>
+                    <select [(ngModel)]="form.proveedorId">
+                        <option [ngValue]="0">Seleccionar</option>
+                        @for (p of proveedores; track p.id) {
+                            <option [ngValue]="p.id">{{ p.nombre }}</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Imágenes</label>
+                <input
+                    class="file-input"
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    (change)="onImagenesSeleccionadas($event)" />
+
+                <div class="previews">
+                    @for (preview of previews; track $index) {
+                        <img [src]="preview" alt="preview" />
+                    }
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secundario" (click)="cerrarModal()">Cancelar</button>
+                <button class="btn-primary" (click)="guardar()">
+                    {{ editando ? 'Actualizar' : 'Guardar' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+}

@@ -1,0 +1,209 @@
+<div class="page">
+    <div class="page-header">
+        <div>
+            <p class="page-tag">Control interno</p>
+            <h2>📊 Inventario</h2>
+            <p class="page-subtitle">
+                Consulta stock actual, registra movimientos y revisa el historial de cada producto.
+            </p>
+        </div>
+
+        <button class="btn-primary" (click)="abrirModalMovimiento()">
+            <span>＋</span> Registrar movimiento
+        </button>
+    </div>
+
+    <div class="consulta-card">
+        <div class="card-head">
+            <div>
+                <h4>Consulta rápida por código de barras</h4>
+                <p>Busca un producto y verifica su stock actual al instante.</p>
+            </div>
+            <div class="card-icon">🔎</div>
+        </div>
+
+        <div class="consulta-row">
+            <input
+                type="text"
+                [(ngModel)]="codigoConsulta"
+                placeholder="Ej: 1014"
+                (keyup.enter)="consultarStock()" />
+            <button class="btn-buscar" (click)="consultarStock()">Buscar</button>
+        </div>
+
+        @if (errorConsulta) {
+        <p class="error">{{ errorConsulta }}</p>
+        }
+
+        @if (stockConsulta) {
+        <div class="stock-result">
+            <div class="stock-result-info">
+                <strong>{{ stockConsulta.nombreProducto }}</strong>
+                <small>Producto encontrado en inventario</small>
+            </div>
+
+            <span class="stock-badge" [ngClass]="colorStock(stockConsulta.stock)">
+                Stock: {{ stockConsulta.stock }}
+            </span>
+        </div>
+        }
+    </div>
+
+    <div class="tabla-card">
+        <div class="tabla-header">
+            <div>
+                <h4>Stock general</h4>
+                <p>Listado completo de productos con su disponibilidad actual.</p>
+            </div>
+        </div>
+
+        <div class="tabla-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Stock actual</th>
+                        <th>Última actualización</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (inv of inventarios; track inv.id) {
+                    <tr>
+                        <td>
+                            <div class="producto-cell">
+                                <span class="producto-icon">📦</span>
+                                <div class="producto-info">
+                                    <strong>{{ inv.nombreProducto }}</strong>
+                                    <small>Registro de inventario</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="stock-badge" [ngClass]="colorStock(inv.stock)">
+                                {{ inv.stock }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="fecha-texto">
+                                {{ inv.fechaActualizacion | date:'dd/MM/yyyy HH:mm' }}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn-historial" (click)="verHistorial(inv)">
+                                📄 Ver historial
+                            </button>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (mostrarModalMovimiento) {
+<div class="modal-overlay" (click)="cerrarModalMovimiento()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <h3>Registrar movimiento</h3>
+                <p>Actualiza el stock del producto según el tipo de movimiento.</p>
+            </div>
+            <button class="btn-close" (click)="cerrarModalMovimiento()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Tipo de movimiento</label>
+                <div class="tipo-selector">
+                    @for (t of tipos; track t) {
+                    <button
+                        type="button"
+                        [class.activo]="form.tipo === t"
+                        (click)="form.tipo = $any(t)">
+                        {{ t === 'ENTRADA' ? '📥 ENTRADA' : t === 'SALIDA' ? '📤 SALIDA' : '🔧 AJUSTE' }}
+                    </button>
+                    }
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Código de barras</label>
+                <input type="text" [(ngModel)]="form.codigoBarra" placeholder="Ej: 1014" />
+            </div>
+
+            <div class="form-group">
+                <label>{{ form.tipo === 'AJUSTE' ? 'Nuevo stock' : 'Cantidad' }}</label>
+                <input type="number" [(ngModel)]="form.cantidad" min="1" />
+            </div>
+
+            <div class="form-group">
+                <label>Motivo</label>
+                <input
+                    type="text"
+                    [(ngModel)]="form.motivo"
+                    [placeholder]="form.tipo === 'ENTRADA' ? 'Ej: Compra a proveedor' :
+                                   form.tipo === 'SALIDA' ? 'Ej: Venta directa' :
+                                   'Ej: Corrección de inventario'" />
+            </div>
+
+            @if (errorMovimiento) {
+            <p class="error">{{ errorMovimiento }}</p>
+            }
+
+            <div class="modal-actions">
+                <button class="btn-secondary" (click)="cerrarModalMovimiento()">Cancelar</button>
+                <button class="btn-primary" (click)="registrarMovimiento()">Registrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+@if (mostrarHistorial) {
+<div class="modal-overlay" (click)="cerrarHistorial()">
+    <div class="modal modal-grande" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <h3>Historial — {{ productoHistorialNombre }}</h3>
+                <p>Seguimiento de entradas, salidas y ajustes del producto.</p>
+            </div>
+            <button class="btn-close" (click)="cerrarHistorial()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="tabla-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Cantidad</th>
+                            <th>Stock anterior</th>
+                            <th>Stock nuevo</th>
+                            <th>Motivo</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (m of historial; track m.id) {
+                        <tr>
+                            <td>
+                                <span class="badge" [ngClass]="badgeTipo(m.tipo)">
+                                    {{ m.tipo }}
+                                </span>
+                            </td>
+                            <td>{{ m.cantidad }}</td>
+                            <td>{{ m.stockAnterior }}</td>
+                            <td>{{ m.stockNuevo }}</td>
+                            <td>{{ m.motivo }}</td>
+                            <td>{{ m.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+}

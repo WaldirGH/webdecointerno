@@ -1,0 +1,122 @@
+<div class="page">
+    <div class="page-header">
+        <div>
+            <p class="page-kicker">Gestión interna</p>
+            <h2>🚚 Proveedores</h2>
+            <span class="page-subtitle">Administra los proveedores registrados en el sistema</span>
+        </div>
+
+        <button class="btn-primary" (click)="abrirModal()">
+            <span>＋</span> Nuevo proveedor
+        </button>
+    </div>
+
+    <div class="tabla-card">
+        <div class="tabla-top">
+            <h3>Lista de proveedores</h3>
+            <span class="badge-total">{{ proveedores.length }} registrados</span>
+        </div>
+
+        <div class="tabla-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>RUC</th>
+                        <th>Nombre</th>
+                        <th class="acciones-col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (proveedores.length > 0) {
+                        @for (p of proveedores; track p.id) {
+                        <tr>
+                            <td>
+                                <span class="id-badge">PRO-{{ p.id | number:'3.0' }}</span>
+                            </td>
+                            <td>
+                                <span class="ruc-text">{{ p.ruc }}</span>
+                            </td>
+                            <td>
+                                <div class="proveedor-info">
+                                    <div class="proveedor-avatar">
+                                        {{ p.nombre.charAt(0) }}
+                                    </div>
+                                    <span>{{ p.nombre }}</span>
+                                </div>
+                            </td>
+                            <td class="acciones">
+                                <button class="btn-editar" (click)="abrirModal(p)">
+                                    ✏ Editar
+                                </button>
+                                <button class="btn-eliminar" (click)="eliminar(p.id)">
+                                    🗑 Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                        }
+                    } @else {
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty-state">
+                                    <div class="empty-icon">📦</div>
+                                    <p>No hay proveedores registrados</p>
+                                    <span>Agrega tu primer proveedor para comenzar</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (mostrarModal) {
+<div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <h3>{{ editando ? 'Editar proveedor' : 'Nuevo proveedor' }}</h3>
+                <p>{{ editando ? 'Actualiza la información del proveedor' : 'Completa los datos del nuevo proveedor' }}</p>
+            </div>
+            <button class="btn-close" (click)="cerrarModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label>RUC</label>
+                <div class="ruc-row">
+                    <input
+                        type="text"
+                        [(ngModel)]="form.ruc"
+                        maxlength="11"
+                        placeholder="20512345678" />
+
+                    <button class="btn-buscar" (click)="buscarRuc()" [disabled]="buscandoRuc">
+                        {{ buscandoRuc ? 'Buscando...' : 'Buscar en SUNAT' }}
+                    </button>
+                </div>
+                @if (errorRuc) {
+                    <p class="error">{{ errorRuc }}</p>
+                }
+            </div>
+
+            <div class="form-group">
+                <label>Nombre / Razón social</label>
+                <input
+                    type="text"
+                    [(ngModel)]="form.nombre"
+                    placeholder="Ingrese el nombre del proveedor" />
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secundario" (click)="cerrarModal()">Cancelar</button>
+                <button class="btn-primary" (click)="guardar()">
+                    {{ editando ? 'Actualizar' : 'Guardar' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+}

@@ -1,0 +1,166 @@
+<div class="page">
+    <div class="page-header">
+        <div>
+            <p class="page-kicker">Administración</p>
+            <h2>👥 Usuarios</h2>
+            <span class="page-subtitle">Gestiona los accesos y roles del sistema</span>
+        </div>
+
+        <button class="btn-primary" (click)="abrirModal()">
+            <span>＋</span> Nuevo usuario
+        </button>
+    </div>
+
+    <div class="tabla-card">
+        <div class="tabla-top">
+            <h3>Lista de usuarios</h3>
+            <span class="badge-total">{{ usuarios.length }} registrados</span>
+        </div>
+
+        <div class="tabla-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th class="acciones-col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (usuarios.length > 0) {
+                        @for (u of usuarios; track u.id) {
+                        <tr>
+                            <td>
+                                <span class="id-badge">#{{ u.id }}</span>
+                            </td>
+
+                            <td>
+                                <div class="usuario-info">
+                                    <div class="usuario-avatar">
+                                        {{ u.nombre.charAt(0) || '?' }}
+                                    </div>
+                                    <div class="usuario-data">
+                                        <strong>{{ u.nombre }}</strong>
+                                        <span>ID: {{ u.id }}</span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="email-text">{{ u.email }}</span>
+                            </td>
+
+                            <td>
+                                <span class="badge" [ngClass]="badgeRol(u.rol)">
+                                    {{ u.rol }}
+                                </span>
+                            </td>
+
+                            <td class="acciones">
+                                <button class="btn-editar" (click)="abrirModal(u)">
+                                    ✏ Editar
+                                </button>
+                                <button class="btn-eliminar" (click)="eliminar(u.id)">
+                                    🗑 Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                        }
+                    } @else {
+                        <tr>
+                            <td colspan="5">
+                                <div class="empty-state">
+                                    <div class="empty-icon">👥</div>
+                                    <p>No hay usuarios registrados</p>
+                                    <span>Crea el primer usuario para comenzar a gestionar accesos</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (mostrarModal) {
+<div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <div>
+                <h3>{{ editando ? 'Editar usuario' : 'Nuevo usuario' }}</h3>
+                <p>
+                    {{ editando
+                    ? 'Actualiza la información y permisos del usuario'
+                    : 'Completa los datos para registrar un nuevo usuario' }}
+                </p>
+            </div>
+
+            <button class="btn-close" (click)="cerrarModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" [(ngModel)]="form.nombre" placeholder="Nombre completo" />
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" [(ngModel)]="form.email" placeholder="correo@deco.com" />
+            </div>
+
+            <div class="form-group">
+                <label>
+                    {{ editando ? 'Nueva contraseña (opcional)' : 'Contraseña' }}
+                </label>
+                <input type="password" [(ngModel)]="form.password" placeholder="••••••••" />
+            </div>
+
+            <div class="form-group">
+                <label>Rol</label>
+                <div class="rol-selector">
+                    <button
+                        type="button"
+                        [class.activo]="form.rol === 'EMPLEADO'"
+                        (click)="form.rol = 'EMPLEADO'">
+                        <span class="rol-icon">👤</span>
+                        <div>
+                            <strong>EMPLEADO</strong>
+                            <small>Gestiona pedidos y estados</small>
+                        </div>
+                    </button>
+
+                    <button
+                        type="button"
+                        [class.activo]="form.rol === 'ADMIN'"
+                        (click)="form.rol = 'ADMIN'">
+                        <span class="rol-icon">👑</span>
+                        <div>
+                            <strong>ADMIN</strong>
+                            <small>Control total del sistema</small>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="info-box">
+                ℹ️ El empleado puede ver y cambiar estados de pedidos. El administrador tiene acceso completo.
+            </div>
+
+            @if (errorGuardar) {
+                <p class="error">{{ errorGuardar }}</p>
+            }
+
+            <div class="modal-actions">
+                <button class="btn-secundario" (click)="cerrarModal()">Cancelar</button>
+                <button class="btn-primary" (click)="guardar()">
+                    {{ editando ? 'Actualizar' : 'Crear usuario' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+}
