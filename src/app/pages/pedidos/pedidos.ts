@@ -18,7 +18,7 @@ export class Pedidos implements OnInit {
   cargando = false;
   filtroEstado = '';
 
-  estados = ['PENDIENTE', 'EN_PROCESO', 'ENVIADO', 'ENTREGADO'];
+  estados = ['PENDIENTE', 'EN_PROCESO', 'LISTO_PARA_ENTREGA', 'ENTREGADO'];
 
   constructor(
     private pedidoService: PedidoService,
@@ -111,7 +111,7 @@ export class Pedidos implements OnInit {
     const map: Record<string, string> = {
       PENDIENTE: 'badge-pendiente',
       EN_PROCESO: 'badge-proceso',
-      ENVIADO: 'badge-enviado',
+      LISTO_PARA_ENTREGA: 'badge-enviado',
       ENTREGADO: 'badge-entregado'
     };
     return map[estado] || '';
