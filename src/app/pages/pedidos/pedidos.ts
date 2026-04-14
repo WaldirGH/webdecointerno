@@ -13,7 +13,6 @@ import { environment } from '../../../environments/environment';
   styleUrl: './pedidos.css',
 })
 export class Pedidos implements OnInit {
-
   pedidos: Pedido[] = [];
   pedidoSeleccionado: Pedido | null = null;
   cargando = false;
@@ -24,7 +23,7 @@ export class Pedidos implements OnInit {
   constructor(
     private pedidoService: PedidoService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     console.log('Pedidos ngOnInit');
@@ -39,9 +38,7 @@ export class Pedidos implements OnInit {
     this.pedidoService.listarTodos().subscribe({
       next: data => {
         console.log('Pedidos recibidos:', data);
-
         this.pedidos = (data || []).map(p => this.normalizarPedido(p));
-
         this.cargando = false;
         this.cdr.detectChanges();
       },
@@ -125,11 +122,7 @@ export class Pedidos implements OnInit {
       return 'assets/img/sin-imagen.png';
     }
 
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-
-    return `${environment.apiUrl}${url}`;
+    return url;
   }
 
   onImageError(event: Event): void {
@@ -141,14 +134,28 @@ export class Pedidos implements OnInit {
     const pedidoNormalizado: any = {
       ...pedido,
       total: pedido?.total ?? 0,
-      detalles: (pedido as any)?.detalles?.map((d: any) => ({
+      detalles: (pedido?.detalles || []).map((d: any) => ({
         ...d,
+        imagenes: d?.imagenes ?? [],
         precioUnitario: d?.precioUnitario ?? 0,
         subtotal: d?.subtotal ?? 0,
-        imgUrl: this.getImagenUrl(d?.imgUrl)
-      })) ?? []
+        imgUrl: this.obtenerPrimeraImagen(d)
+      }))
     };
 
     return pedidoNormalizado as Pedido;
+  }
+
+  private obtenerPrimeraImagen(detalle: any): string {
+    const imagen = detalle?.imagenes?.[0];
+
+    if (!imagen) {
+      return 'assets/img/sin-imagen.png';
+    }
+
+    // ajusta esto según tu modelo Imagen
+    const url = imagen.url || imagen.imagenUrl || imagen.ruta || '';
+
+    return this.getImagenUrl(url);
   }
 }

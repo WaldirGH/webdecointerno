@@ -150,7 +150,9 @@
             <div class="detalles-lista">
                 @for (d of pedidoSeleccionado.detalles; track d.id) {
                 <div class="detalle-item">
-                    <img [src]="getImagenUrl(d.imgUrl)" [alt]="d.nombreProducto" (error)="onImageError($event)" />
+                    <img [src]="d.imgUrl || 'assets/img/sin-imagen.png'" [alt]="d.nombreProducto"
+                        (error)="onImageError($event)" />
+
                     <div class="detalle-content">
                         <strong>{{ d.nombreProducto }}</strong>
                         <p>Cantidad: {{ d.cantidad }}</p>
