@@ -1,13 +1,6 @@
 {
-    "builds": [
-        
-        {
-        "src": "package.json",
-        "use": "@vercel/static-build",
-        "config": { "distDir": "dist/webdecoadmin" }
-        }
-    ],
-    "routes": [
-        { "src": "/(.*)", "dest": "/index.html" }
+    "outputDirectory": "dist/webdecoadmin/browser",
+    "rewrites": [
+        { "source": "/(.*)", "destination": "/index.html" }
     ]
 }
