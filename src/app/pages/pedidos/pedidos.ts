@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Pedido } from '../../models/pedido';
 import { PedidoService } from '../../core/services/pedido';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-pedidos',
@@ -23,7 +24,7 @@ export class Pedidos implements OnInit {
   constructor(
     private pedidoService: PedidoService,
     private cdr: ChangeDetectorRef
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     console.log('Pedidos ngOnInit');
@@ -38,7 +39,9 @@ export class Pedidos implements OnInit {
     this.pedidoService.listarTodos().subscribe({
       next: data => {
         console.log('Pedidos recibidos:', data);
-        this.pedidos = [...data];
+
+        this.pedidos = (data || []).map(p => this.normalizarPedido(p));
+
         this.cargando = false;
         this.cdr.detectChanges();
       },
@@ -62,7 +65,7 @@ export class Pedidos implements OnInit {
 
     this.pedidoService.listarPorEstado(this.filtroEstado).subscribe({
       next: data => {
-        this.pedidos = [...data];
+        this.pedidos = (data || []).map(p => this.normalizarPedido(p));
         this.cargando = false;
         this.cdr.detectChanges();
       },
@@ -75,7 +78,7 @@ export class Pedidos implements OnInit {
   }
 
   verDetalle(pedido: Pedido): void {
-    this.pedidoSeleccionado = pedido;
+    this.pedidoSeleccionado = this.normalizarPedido(pedido);
   }
 
   cerrarDetalle(): void {
@@ -87,14 +90,16 @@ export class Pedidos implements OnInit {
 
     this.pedidoService.cambiarEstado(pedido.id, estado).subscribe({
       next: actualizado => {
+        const pedidoNormalizado = this.normalizarPedido(actualizado);
+
         const index = this.pedidos.findIndex(p => p.id === pedido.id);
         if (index !== -1) {
-          this.pedidos[index] = actualizado;
+          this.pedidos[index] = pedidoNormalizado;
           this.pedidos = [...this.pedidos];
         }
 
         if (this.pedidoSeleccionado?.id === pedido.id) {
-          this.pedidoSeleccionado = actualizado;
+          this.pedidoSeleccionado = pedidoNormalizado;
         }
 
         this.cdr.detectChanges();
@@ -113,5 +118,37 @@ export class Pedidos implements OnInit {
       ENTREGADO: 'badge-entregado'
     };
     return map[estado] || '';
+  }
+
+  getImagenUrl(url: string | null | undefined): string {
+    if (!url || url.trim() === '') {
+      return 'assets/img/sin-imagen.png';
+    }
+
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+
+    return `${environment.apiUrl}${url}`;
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'assets/img/sin-imagen.png';
+  }
+
+  private normalizarPedido(pedido: Pedido): Pedido {
+    const pedidoNormalizado: any = {
+      ...pedido,
+      total: pedido?.total ?? 0,
+      detalles: (pedido as any)?.detalles?.map((d: any) => ({
+        ...d,
+        precioUnitario: d?.precioUnitario ?? 0,
+        subtotal: d?.subtotal ?? 0,
+        imgUrl: this.getImagenUrl(d?.imgUrl)
+      })) ?? []
+    };
+
+    return pedidoNormalizado as Pedido;
   }
 }

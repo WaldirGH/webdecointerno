@@ -1,4 +1,4 @@
 export const environment = {
     production: false,
-    apiUrl: 'https://decobackend.onrender.com/api'
+    apiUrl: 'http://localhost:8081' // o tu local
 };

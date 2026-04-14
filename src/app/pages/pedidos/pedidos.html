@@ -59,7 +59,7 @@
                         <td>{{ pedido.telefono }}</td>
 
                         <td class="total-cell">
-                            S/ {{ pedido.total.toFixed(2) }}
+                            S/ {{ (pedido.total ?? 0).toFixed(2) }}
                         </td>
 
                         <td>{{ pedido.tipoEntrega }}</td>
@@ -74,13 +74,10 @@
 
                         <td>
                             <div class="acciones-cell">
-
-                                <!-- BOTÓN VER -->
                                 <button class="btn-ver" (click)="verDetalle(pedido)">
                                     Ver
                                 </button>
 
-                                <!-- ✅ SELECT CORREGIDO -->
                                 <select class="estado-select" [ngModel]="pedido.estado"
                                     (ngModelChange)="cambiarEstado(pedido, $event)">
                                     @for (e of estados; track e) {
@@ -89,7 +86,6 @@
                                     </option>
                                     }
                                 </select>
-
                             </div>
                         </td>
                     </tr>
@@ -144,7 +140,8 @@
                     </span>
                 </div>
 
-                <div class="info-item total-info"><strong>Total:</strong> S/ {{ pedidoSeleccionado.total.toFixed(2) }}
+                <div class="info-item total-info">
+                    <strong>Total:</strong> S/ {{ (pedidoSeleccionado.total ?? 0).toFixed(2) }}
                 </div>
             </div>
 
@@ -153,12 +150,12 @@
             <div class="detalles-lista">
                 @for (d of pedidoSeleccionado.detalles; track d.id) {
                 <div class="detalle-item">
-                    <img [src]="d.imgUrl" [alt]="d.nombreProducto" />
+                    <img [src]="getImagenUrl(d.imgUrl)" [alt]="d.nombreProducto" (error)="onImageError($event)" />
                     <div class="detalle-content">
                         <strong>{{ d.nombreProducto }}</strong>
                         <p>Cantidad: {{ d.cantidad }}</p>
-                        <p>Precio unit: S/ {{ d.precioUnitario.toFixed(2) }}</p>
-                        <p>Subtotal: S/ {{ d.subtotal.toFixed(2) }}</p>
+                        <p>Precio unit: S/ {{ (d.precioUnitario ?? 0).toFixed(2) }}</p>
+                        <p>Subtotal: S/ {{ (d.subtotal ?? 0).toFixed(2) }}</p>
                     </div>
                 </div>
                 }
